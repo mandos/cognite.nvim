@@ -1,0 +1,21 @@
+{
+    "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+    "runtime": {
+        "version": "LuaJIT"
+    },
+    "diagnostics":
+    {
+        "globals": ["vim", "describe", "it"]
+    },
+    "workspace": {
+        "ignoreDir": [
+            ".tests"
+        ],
+        "library":
+            [
+                ".tests/site/pack/deps/start/nui.nvim",
+                ".tests/site/pack/deps/start/plenary.nvim"
+            ] ,
+        "checkThirdParty": false
+    }
+}

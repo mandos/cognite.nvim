@@ -1,0 +1,18 @@
+local assert = require("luassert")
+local api = require("cognite.openai.api")
+
+describe("generateRequest", function()
+	it("should return a OpenAIRequest", function()
+		local t = require("cognite.openai.types")
+		-- local request = api._internal.generateRequest("My question to AI")
+		-- assert.is_table(request)
+	end)
+end)
+
+describe("askAI", function()
+	it("should return a OpenAIResponse", function()
+		-- local response = api.askAI("My question to AI")
+		-- assert.is_string(response)
+		-- assert.is_table(response)
+	end)
+end)

@@ -1,0 +1,14 @@
+#!/bin/env sh
+set -x
+
+TESTS_PATH=${2:-"tests"}
+
+if [ "$1" = "fail" ]; then
+    echo "Running tests until first failure"
+    nvim --headless -u minimal_init.lua -c "PlenaryBustedDirectory ${TESTS_PATH} {minimal_init = 'minimal_init.lua', sequential = true, keep_going = false}"
+  else
+    echo "Running all tests"
+    nvim --headless -u minimal_init.lua -c "PlenaryBustedDirectory ${TESTS_PATH} {minimal_init = 'minimal_init.lua', sequential = true, keep_going = true }"
+fi
+
+# vim: set filetype=shell
