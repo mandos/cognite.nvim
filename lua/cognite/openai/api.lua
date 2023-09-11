@@ -106,6 +106,11 @@ local function createConversation(api_key, model)
 		end
 	end
 
+	if model.message then
+		addToConversation("message", model.message)
+		model.message = nil
+	end
+
 	local sendRequestWithApiKey = partial(sendRequest, api_key)
 	local generateRequestForModel = partial(generateRequest, model)
 	local generateUserMessage = partial(generateMessage, "user")
