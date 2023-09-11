@@ -28,14 +28,16 @@ local function new_type(config)
 	new_type.__validate = config.__validate or function(value)
 		return value
 	end
-	new_type.__init = function(self, value)
-		self.__raw = self.__validate(value)
-	end
 
 	setmetatable(new_type, {
 		__call = function(self, raw_value)
-			self:__init(raw_value)
-			return readOnly(self)
+			local instance = {}
+			setmetatable(instance, {
+				__index = self,
+			})
+			instance.__raw = self.__validate(raw_value)
+
+			return readOnly(instance)
 		end,
 	})
 	-- log.trace("NewType:", new_type)
