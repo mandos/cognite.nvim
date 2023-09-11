@@ -10,12 +10,14 @@ local M = {}
 local function openChat(params)
 	-- BUG: not show error message
 	local config = require("cognite.config")
-	local askAI = require("cognite.openai.api").askAI
+	local createConversation = require("cognite.openai.api").createConversation
 
 	local openai_conf = config.get("openai").raw_value
-	local partialAskAI = partial(askAI, openai_conf.api_key, openai_conf.model)
+	local askAI = createConversation(openai_conf.api_key, openai_conf.model)
 
-	ui.createChat(partialAskAI)
+	-- log.info(askAI("hello"))
+
+	ui.createChat(askAI)
 end
 
 function M.setup()

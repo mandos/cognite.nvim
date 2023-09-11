@@ -32,7 +32,7 @@ local Message = Generic({
 	__validate = function(value)
 		assert(
 			value.role == "user" or value.role == "assistant" or value.role == "system",
-			"role must be either 'agent' or 'user'"
+			"role must be either 'assistent', 'user', or 'system', get: " .. tostring(value.role)
 		)
 		assert(value.content or value.function_call, "content or function_call must be present")
 		assert(
