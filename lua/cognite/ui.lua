@@ -3,6 +3,7 @@ local model = require("cognite.openai.api")
 local cmp = require("cognite.functional").compose
 local f = require("cognite.functional")
 local u = require("cognite.utils")
+local a = require("plenary.async")
 
 local break_line = "------------------------------------------\n"
 
@@ -74,10 +75,10 @@ local createChat = function(chatBox, promptBox, askAI)
 
 	promptBox:map("i", "<CR>", function()
 		local appendToChat = u.appendToBuffer(chatBox.bufnr)
-		local question = u.readBuffer(promptBox.bufnr)
-		appendToChat({ "You: " .. question, break_line })
+		local getRawQuestion = u.readBuffer(promptBox.bufnr)
+		appendToChat({ "User: " .. getRawQuestion, break_line })
 		appendToChat({ "AI: " })
-		f.compose(appendToChat, askAI)(question)
+		f.compose(appendToChat, askAI)(getRawQuestion)
 		appendToChat({ break_line })
 		u.clearBuffer(promptBox.bufnr)
 	end, { nowait = true })

@@ -1,4 +1,5 @@
 local Struct = require("cognite.types.struct")
+local Generic = require("cognite.types.generic")
 
 ---@class CompletionObject
 ---@field id string
@@ -10,8 +11,8 @@ local Response = {}
 
 ---@class Choice
 ---@field index number
----@field massage Message|nil should be present if delta is not
----@field delta Message|nil should be present if message is not
+---@field massage OpenAIMessage|nil should be present if delta is not
+---@field delta OpenAIMessage|nil should be present if message is not
 ---@field finish_reason string
 local Choice = {}
 
@@ -21,16 +22,25 @@ local Choice = {}
 ---@field total_tokens number
 local Usage = {}
 
----@class Message
+---@class OpenAIMessage
 ---@field role string
 ---@field content string|nil
 ---@field function_call FunctionCall|nil
 ---@field name string|nil only for Request
-local Message = Struct("Message", {
-	role = "string",
-	content = "string",
-	-- function_call = "FunctionCall",
-	name = "string",
+local Message = Generic({
+	__type = "OpenAIMessage",
+	__validate = function(value)
+		assert(
+			value.role == "user" or value.role == "assistant" or value.role == "system",
+			"role must be either 'agent' or 'user'"
+		)
+		assert(value.content or value.function_call, "content or function_call must be present")
+		assert(
+			type(value.content) == "string" or type(value.function_call) == "table",
+			"content must be a string or function_call must be a table"
+		)
+		return value
+	end,
 })
 
 ---@class FunctionCall
@@ -55,7 +65,7 @@ local CompletionChunk = {}
 ---@field frequency_penalty number|nil default 0; Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
 
 ---@class Request
----@field messages Message[] A list of messages comprising the conversation so far.
+---@field messages OpenAIMessage[] A list of messages comprising the conversation so far.
 ---@field functions table[string] A list of functions the model may generate JSON inputs for.
 ---@field function_call string|nil Controls how the model responds to function calls. "none" means the model does not call a function, and responds to the end-user. "auto" means the model can pick between an end-user or calling a function. Specifying a particular function via {"name":\ "my_function"} forces the model to call that function. "none" is the default when no functions are present. "auto" is the default if functions are present.
 ---@field stream boolean|nil default false

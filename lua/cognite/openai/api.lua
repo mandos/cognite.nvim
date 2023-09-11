@@ -6,17 +6,13 @@ local log = require("cognite.log")
 
 ---Create request for the Open AI.
 ---@param model table (should be OpenAIModel)
----@param question string
+---@param message OpenAIMessage
 ---@return Request
-local function generateRequest(model, question)
-	local message = t.Message({
-		role = "user",
-		content = question,
-	})
+local function generateRequest(model, message)
 	log.debug("Generating request;", "model:", model, "message:", message)
 	return t.Request(vim.tbl_extend("error", model, {
 		messages = {
-			message._value,
+			message.__raw,
 		},
 	}))
 end
@@ -57,6 +53,17 @@ local function extractAnswers(curl_response)
 	return { response.choices[1].message.content }
 end
 
+---Generate message for the Open AI.
+---@param role string (should be "user" or "system")
+---@param content string
+---@return OpenAIMessage
+local function generateMessage(role, content)
+	return t.Message({
+		role = role,
+		content = content,
+	})
+end
+
 ---Get some answers from the AI.
 ---@param model OpenAIModel
 ---@param api_key string
@@ -65,7 +72,8 @@ local function askAI(api_key, model, text)
 	log.debug("Asking AI;", "api_key:", api_key, "model:", model, "text:", text)
 	local sendRequestWithApiKey = partial(sendRequest, api_key)
 	local generateRequestForModel = partial(generateRequest, model)
-	return compose(extractAnswers, sendRequestWithApiKey, generateRequestForModel)(text)
+	local generateUserMessage = partial(generateMessage, "user")
+	return compose(extractAnswers, sendRequestWithApiKey, generateRequestForModel, generateUserMessage)(text)
 end
 
 return {
@@ -74,6 +82,7 @@ return {
 	-- NOTE: _internal is only for testing purpose
 	_internal = {
 		generateRequest = generateRequest,
+		generateMessage = generateMessage,
 		sendRequest = sendRequest,
 		extractAnswers = extractAnswers,
 	},

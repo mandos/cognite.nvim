@@ -33,14 +33,27 @@ describe("Custom Type", function()
 				if string.match(value, "^.+@.+$") == nil then
 					error("Invalid email address, given: " .. value)
 				end
+				return value
 			end,
 		})
-		-- Email("moo@boo")
+		local email
 		assert.has_no_error(function()
-			Email("moo@boo.foo")
+			email = Email("moo@boo.foo")
 		end)
+		assert.are.same("moo@boo.foo", email.__raw)
+
 		assert.has_error(function()
 			Email(42)
+		end)
+	end)
+
+	it("should be read only", function()
+		local Email = Generic({
+			__type = "ReadOnlyEmail",
+		})
+		local email = Email("boo@moo")
+		assert.has_error(function()
+			email.__raw = "moo@boo"
 		end)
 	end)
 end)
