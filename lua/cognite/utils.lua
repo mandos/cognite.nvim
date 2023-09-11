@@ -23,14 +23,14 @@ end
 ---@return string[]
 M.splitTable = function(tbl, char)
 	local result = {}
-	log.debug("Split table;", "tbl:", tbl, "char:", char)
+	-- log.debug("Split table;", "tbl:", tbl, "char:", char)
 	for _, x in ipairs(tbl) do
 		lines = vim.split(x, char)
 		for _, v in ipairs(lines) do
 			table.insert(result, v)
 		end
 	end
-	log.debug("Split table;", "result:", result)
+	-- log.debug("Split table;", "result:", result)
 	return result
 end
 
@@ -39,7 +39,7 @@ end
 ---@return fun(lines: string[]):nil
 M.appendToBuffer = function(buf_nr)
 	local append = function(lines)
-		log.debug("Lines to append", "lines:", lines)
+		-- log.debug("Lines to append", "lines:", lines)
 		local last_line = vim.api.nvim_buf_line_count(buf_nr)
 		local last_line_string = vim.api.nvim_buf_get_lines(buf_nr, last_line - 1, last_line, false)[1]
 		-- Remove empty line at the end of the buffer (left for clearBuffer for example)

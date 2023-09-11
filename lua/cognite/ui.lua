@@ -14,10 +14,11 @@ local M = {
 }
 
 ---Create Popup for box with responses from AI
+---@param header string[]
 ---@return NuiPopup
-local function createChatBox()
+local function createChatBox(header)
 	local Popup = require("nui.popup")
-	return Popup({
+	local chat_box = Popup({
 		border = "single",
 		buf_options = {
 			modifiable = true,
@@ -25,6 +26,9 @@ local function createChatBox()
 			filetype = "markdown",
 		},
 	})
+
+	u.appendToBuffer(chat_box.bufnr)(header)
+	return chat_box
 end
 
 ---Create Popup for box where user can input question
@@ -86,17 +90,14 @@ local createChat = function(chatBox, promptBox, askAI)
 	return chat
 end
 
----Create a chat controle
----@param askAI fun(question: string): string[]
---TODO: not pure function, how to fix it?
-local function createChatControl(askAI) end
+local function updateBoxes(prompt_bufnr, chat_bufnr, askAI) end
 
 ---Create a control function for chat
 ---@param askAI fun(question: string): string[]
 ---@return NuiLayout
-function M.createChat(askAI)
+function M.createChat(askAI, chat_header)
 	if M.chat == nil then
-		M.chat = createChat(createChatBox(), createPromptBox(), askAI)
+		M.chat = createChat(createChatBox(chat_header), createPromptBox(), askAI)
 		M.chat:mount()
 	end
 

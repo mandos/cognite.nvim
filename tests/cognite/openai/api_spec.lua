@@ -22,10 +22,10 @@ end)
 
 describe("intrnal", function()
 	describe("generateMessage", function()
-		local genrateMessage = api._internal.generateMessage
+		local generateMessage = api._internal.generateMessage
 		it("should return a OpenAIMessage", function()
 			local t = require("cognite.openai.types")
-			local message = genrateMessage("user", "My question to AI")
+			local message = generateMessage("user", "My question to AI")
 			assert.is_table(message)
 			assert.is_string(message.__raw.role)
 			assert.is_string(message.__raw.content)
@@ -35,7 +35,7 @@ describe("intrnal", function()
 
 		it("should should throw error if role is incorrect", function()
 			assert.has_error(function()
-				genrateMessage("incorrect", "My question to AI")
+				generateMessage("incorrect", "My question to AI")
 			end)
 		end)
 	end)

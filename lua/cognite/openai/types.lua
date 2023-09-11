@@ -1,3 +1,5 @@
+local log = require("cognite.log")
+
 local Struct = require("cognite.types.struct")
 local Generic = require("cognite.types.generic")
 
@@ -22,7 +24,7 @@ local Choice = {}
 ---@field total_tokens number
 local Usage = {}
 
----@class OpenAIMessage
+---@class OpenAIMessage: Generic
 ---@field role string
 ---@field content string|nil
 ---@field function_call FunctionCall|nil
@@ -39,6 +41,21 @@ local Message = Generic({
 			type(value.content) == "string" or type(value.function_call) == "table",
 			"content must be a string or function_call must be a table"
 		)
+		return value
+	end,
+})
+
+---@class OpenAIConfig: Generic
+---@field api_key string
+---@field model OpenAIModel
+local Config = Generic({
+	__type = "OpenAIConfig",
+	__validate = function(value)
+		log.info("OpenAIConfig: ", value)
+		assert(value.api_key, "api_key must be present")
+		assert(type(value.api_key) == "string", "api_key must be a string")
+		assert(value.model, "model must be present")
+		-- assert(value.model.__type == "OpenAIModel", "model must be a OpenAIModel")
 		return value
 	end,
 })
@@ -87,6 +104,9 @@ local Request = Struct("Request", {
 })
 
 return {
+	OpenAIConfig = Config,
+	OpenAIMessage = Message,
+
 	Response = Response,
 	Choice = Choice,
 	Usage = Usage,

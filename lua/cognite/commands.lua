@@ -12,12 +12,14 @@ local function openChat(params)
 	local config = require("cognite.config")
 	local createConversation = require("cognite.openai.api").createConversation
 
-	local openai_conf = config.get("openai").raw_value
+	local openai_conf = config.get("openai").__raw
+	local chat_header = {
+		"System: " .. openai_conf.model.message.__raw.content,
+		"------------------------------------------------------",
+	}
 	local askAI = createConversation(openai_conf.api_key, openai_conf.model)
-
-	-- log.info(askAI("hello"))
-
-	ui.createChat(askAI)
+	-- BUG: looks like I change model in createConversation and I don't have anymore access to message
+	ui.createChat(askAI, chat_header)
 end
 
 function M.setup()
