@@ -10,3 +10,6 @@ Plugin to interact with AI
 4. I'm not responsible for any damage done by this application, use it at your own risk.
 
 ## Development
+
+## License
+Licensed under the MIT License. Check the [LICENSE](./LICENSE) file for details.
