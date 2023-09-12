@@ -19,9 +19,9 @@ local function generateRequest(model, conversation)
 		table.insert(raw_messages, #raw_messages + 1, message.__raw)
 	end
 
-	log.debug("raw_messages:", raw_messages)
+	-- log.debug("raw_messages:", raw_messages)
 
-	return t.Request(vim.tbl_extend("force", model, {
+	return t.Request(vim.tbl_extend("force", model.__raw, {
 		messages = raw_messages,
 	}))
 end
@@ -43,7 +43,7 @@ local function sendRequest(api_key, request)
 		},
 		body = vim.fn.json_encode(request._fields),
 	}
-	log.debug("Sending request;", "request:", curl_request)
+	-- log.debug("Sending request;", "request:", curl_request)
 	local success, result = pcall(curl.request, curl_request)
 	local result = CurlResponse(result)
 	if not success then
@@ -60,7 +60,7 @@ end
 -- TODO: For now it returns only first answer, but it should return all answers
 local function extractMessage(curl_response)
 	local response = vim.fn.json_decode(curl_response.body)
-	log.debug("Extracting answers;", "response:", response)
+	-- log.debug("Extracting answers;", "response:", response)
 	return t.Message(response.choices[1].message)
 end
 
@@ -85,11 +85,11 @@ end
 
 ---Create conversation with the Open AI.
 ---@param api_key string
----@param model OpenAIModel
+---@param model OpenAIConfigModel
 ---@return fun(prompt: string): string[] function to send prompt to the AI
 -- NOTE: function is not pure(?), keep conversation state
 local function createConversation(api_key, model)
-	log.debug("Create Conversation", "api_key:", api_key, "model:", model)
+	-- log.debug("Create Conversation", "api_key:", api_key, "model:", model)
 	local conversation = {}
 
 	local addToConversation = function(what_return, message)
@@ -97,7 +97,7 @@ local function createConversation(api_key, model)
 			what_return == "message" or what_return == "conversation",
 			"return should be 'message' or 'conversation'"
 		)
-		log.debug("Add to conversation:", "message:", message)
+		-- log.debug("Add to conversation:", "message:", message)
 		table.insert(conversation, #conversation + 1, message)
 		if what_return == "message" then
 			return message
@@ -105,18 +105,14 @@ local function createConversation(api_key, model)
 			return conversation
 		end
 	end
-
-	if model.message then
-		addToConversation("message", model.message)
-		model.message = nil
-	end
+	addToConversation("message", model.message)
 
 	local sendRequestWithApiKey = partial(sendRequest, api_key)
-	local generateRequestForModel = partial(generateRequest, model)
+	local generateRequestForModel = partial(generateRequest, t.OpenAIModel({ model = model.model }))
 	local generateUserMessage = partial(generateMessage, "user")
 
 	return function(prompt)
-		log.debug("Ask AI:", "prompt:", prompt)
+		-- log.debug("Ask AI:", "prompt:", prompt)
 		return compose(
 			extractAnswers,
 			partial(addToConversation, "message"),

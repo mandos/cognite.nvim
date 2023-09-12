@@ -35,6 +35,17 @@ describe("Custom Type", function()
 		assert.are_not_same(email1.__raw, email2.__raw)
 	end)
 
+	it("could be initialized with __init", function()
+		local Email = Generic({
+			__type = "Email",
+			__init = function(self, value)
+				self.user_email = value
+			end,
+		})
+		local email = Email("moo@boo")
+		assert.are.equal(email.user_email, "moo@boo")
+	end)
+
 	it("should be initialized with validation", function()
 		local Email = Generic({
 			__type = "ValidatedEmail",
