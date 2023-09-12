@@ -25,9 +25,8 @@ end
 local function new_type(config)
 	local new_type = {}
 	new_type.__type = config.__type
-	new_type.__validate = config.__validate or function(value)
-		return value
-	end
+	new_type.__validate = config.__validate or function(value) end
+	new_type.__init = config.__init or function(self, value) end
 
 	setmetatable(new_type, {
 		__call = function(self, raw_value)
@@ -35,7 +34,10 @@ local function new_type(config)
 			setmetatable(instance, {
 				__index = self,
 			})
-			instance.__raw = self.__validate(raw_value)
+			-- log.debug("Generic:__call", "self:", self, "raw_value:", raw_value)
+			self.__validate(raw_value)
+			self.__init(instance, raw_value)
+			instance.__raw = raw_value
 
 			return readOnly(instance)
 		end,

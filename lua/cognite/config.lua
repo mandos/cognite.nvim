@@ -9,7 +9,7 @@ local default_config = {
 	openai = {
 		model = {
 			model = "gpt-3.5-turbo",
-			message = OpenAIMessage({ role = "system", content = "All answers should be full of dark humor." }),
+			message = { role = "system", content = "All answers should be full of dark humor." },
 		},
 	},
 }
@@ -25,13 +25,8 @@ local setup = function(custom_config)
 	-- log.debug("custom_config 1", custom_config)
 	local custom_config = custom_config or {}
 	-- log.debug("custom_config 2", custom_config)
-	log.debug("custom_config", custom_config)
-	log.debug("default_config", default_config)
-
 	local full_config = vim.tbl_deep_extend("force", default_config, custom_config)
-
-	log.debug("full_config", full_config)
-
+	-- log.debug("full_config", full_config)
 	config = {
 		openai = OpenAIConfig(full_config.openai),
 	}

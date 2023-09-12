@@ -1,4 +1,4 @@
-local log = require("cognite.log").debug
+local log = require("cognite.log")
 local model = require("cognite.openai.api")
 local cmp = require("cognite.functional").compose
 local f = require("cognite.functional")
@@ -8,10 +8,7 @@ local a = require("plenary.async")
 local break_line = "------------------------------------------\n"
 
 ---@class ui
----@field chat NuiLayout|nil
-local M = {
-	chat = nil,
-}
+local M = {}
 
 ---Create Popup for box with responses from AI
 ---@param header string[]
@@ -74,7 +71,7 @@ local createChat = function(chatBox, promptBox, askAI)
 	end, { nowait = true })
 
 	promptBox:map("n", "q", function()
-		chat:unmount()
+		chat:hide()
 	end, { nowait = true })
 
 	promptBox:map("i", "<CR>", function()
@@ -90,18 +87,19 @@ local createChat = function(chatBox, promptBox, askAI)
 	return chat
 end
 
-local function updateBoxes(prompt_bufnr, chat_bufnr, askAI) end
+function M.chat()
+	local chat = {}
 
----Create a control function for chat
----@param askAI fun(question: string): string[]
----@return NuiLayout
-function M.createChat(askAI, chat_header)
-	if M.chat == nil then
-		M.chat = createChat(createChatBox(chat_header), createPromptBox(), askAI)
-		M.chat:mount()
+	return function(operation, chatnr, askAI, chat_header)
+		if operation == "open" then
+			if chat[chatnr] == nil then
+				chat[chatnr] = createChat(createChatBox(chat_header), createPromptBox(), askAI)
+				chat[chatnr]:mount()
+			else
+				chat[chatnr]:show()
+			end
+		end
 	end
-
-	return M.chat
 end
 
 ---Create a control function for chat

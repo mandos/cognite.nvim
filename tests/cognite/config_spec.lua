@@ -11,24 +11,30 @@ describe("get for Config module", function()
 
 	it("should return config key", function()
 		local config = require("cognite.config")
-		config.setup()
+		config.setup({
+			openai = {
+				api_key = "test",
+				model = {
+					role = "system",
+					content = "Give me ONLY correct answers",
+				},
+			},
+		})
 		assert.is_not_nil(config.get("openai"))
 	end)
 end)
 
--- describe("OpenAIConfig", function()
--- 	local OpenAIConfig = require("cognite.config")._internal.OpenAIConfig
--- 	local Option = require("cognite.functional.option")
-
--- 	it("should initialize with correct values", function()
--- 		local config = OpenAIConfig:create({ api_key = "test" })
--- 		assert.are_same({ api_key = "test" }, config.raw_value)
--- 		assert.are_same(Option({ api_key = "test" }), config.value)
--- 	end)
-
--- 	it("should return Option.None if value is not string", function()
--- 		local config = OpenAIConfig:create({ api_key = 1 })
--- 		assert.are_same({ api_key = 1 }, config.raw_value)
--- 		assert.are_same(Option.None(), config.value)
--- 	end)
--- end)
+describe("OpenAIConfig", function()
+	it("should be initialized with minimum values", function()
+		local config = require("cognite.config")
+		config.setup({
+			openai = {
+				api_key = "test",
+			},
+		})
+		local openai_config = config.get("openai")
+		-- log("openai_config", openai_config)
+		assert.are_same("test", openai_config.api_key)
+		assert.is_not_nil(openai_config.model)
+	end)
+end)

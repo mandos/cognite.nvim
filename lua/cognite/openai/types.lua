@@ -45,18 +45,62 @@ local Message = Generic({
 	end,
 })
 
+---@class OpenAIConfigModel: Generic
+---@field model string ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
+---@field message OpenAIMessage|nil The message to be fed to the model as the "prompt".
+---@field temperature number|nil default 1
+---@field top_p number|nil default 1
+---@field n number|nil default 1
+---@field presence_penalty number|nil default 0
+---@field frequency_penalty number|nil default 0; Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+local ConfigModel = Generic({
+	__type = "OpenAIModel",
+	__validate = function(value)
+		assert(value.model, "model must be present")
+		assert(type(value.model) == "string", "model must be a string")
+		assert(value.message, "message must be present")
+		assert(type(value.message) == "table", "message must be a table")
+		-- TODO: validate rest of params
+	end,
+	__init = function(self, value)
+		self.model = value.model
+		self.message = Message(value.message)
+	end,
+})
+
+---@class OpenAIModel: Generic
+---@field model string ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
+---@field temperature number|nil default 1
+---@field top_p number|nil default 1
+---@field n number|nil default 1
+---@field presence_penalty number|nil default 0
+---@field frequency_penalty number|nil default 0; Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
+local OpenAIModel = Generic({
+	__type = "OpenAIModel",
+	__validate = function(value)
+		assert(value.model, "model must be present")
+		assert(type(value.model) == "string", "model must be a string")
+	end,
+	__init = function(self, value)
+		self.model = value.model
+	end,
+})
+
 ---@class OpenAIConfig: Generic
 ---@field api_key string
----@field model OpenAIModel
+---@field model OpenAIConfigModel
 local Config = Generic({
 	__type = "OpenAIConfig",
 	__validate = function(value)
-		log.info("OpenAIConfig: ", value)
 		assert(value.api_key, "api_key must be present")
 		assert(type(value.api_key) == "string", "api_key must be a string")
 		assert(value.model, "model must be present")
-		-- assert(value.model.__type == "OpenAIModel", "model must be a OpenAIModel")
+		assert(type(value.model), "table", "model have to be table")
 		return value
+	end,
+	__init = function(self, value)
+		self.api_key = value.api_key
+		self.model = ConfigModel(value.model)
 	end,
 })
 
@@ -72,14 +116,6 @@ local FunctionCall = {}
 ---@field choices Choice[]
 ---@field model number
 local CompletionChunk = {}
-
----@class OpenAIModel
----@field model string ID of the model to use. See the model endpoint compatibility table for details on which models work with the Chat API.
----@field temperature number|nil default 1
----@field top_p number|nil default 1
----@field n number|nil default 1
----@field presence_penalty number|nil default 0
----@field frequency_penalty number|nil default 0; Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
 
 ---@class Request
 ---@field messages OpenAIMessage[] A list of messages comprising the conversation so far.
@@ -106,6 +142,7 @@ local Request = Struct("Request", {
 return {
 	OpenAIConfig = Config,
 	OpenAIMessage = Message,
+	OpenAIModel = OpenAIModel,
 
 	Response = Response,
 	Choice = Choice,
